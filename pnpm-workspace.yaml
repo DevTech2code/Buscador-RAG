@@ -11,6 +11,8 @@ catalogMode: strict
 
 engineStrict: true
 
+injectWorkspacePackages: true
+
 minimumReleaseAge: 1440
 
 preferFrozenLockfile: true

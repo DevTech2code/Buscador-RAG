@@ -33,6 +33,18 @@ Inicia la API en modo desarrollo:
 pnpm --filter @buscador-rag/api dev
 ```
 
+Levanta el entorno contenerizado:
+
+```bash
+Copy-Item .env.example .env
+docker compose up --build -d
+docker compose ps
+```
+
+La API queda disponible en `http://localhost:3000` y su health check en
+`http://localhost:3000/health`. Redis y Qdrant solo son accesibles desde la red
+interna de Docker.
+
 Ejecuta las verificaciones del workspace:
 
 ```bash
