@@ -1,0 +1,19 @@
+{
+  "name": "buscador-rag",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Asistente virtual inteligente de ventas e-commerce con RAG",
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "scripts": {
+    "build": "pnpm --recursive --if-present run build",
+    "dev": "pnpm --recursive --parallel --if-present run dev",
+    "format": "pnpm --recursive --if-present run format",
+    "lint": "pnpm --recursive --if-present run lint",
+    "test": "pnpm --recursive --if-present run test",
+    "typecheck": "pnpm --recursive --if-present run typecheck"
+  }
+}

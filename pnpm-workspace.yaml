@@ -1,0 +1,20 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+autoInstallPeers: false
+
+allowBuilds:
+  unrs-resolver: true
+
+catalogMode: strict
+
+engineStrict: true
+
+minimumReleaseAge: 1440
+
+preferFrozenLockfile: true
+
+saveExact: true
+
+strictPeerDependencies: true
