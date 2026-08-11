@@ -45,6 +45,19 @@ La API queda disponible en `http://localhost:3000` y su health check en
 `http://localhost:3000/health`. Redis y Qdrant solo son accesibles desde la red
 interna de Docker.
 
+Consulta productos del catálogo ERP mediante NestJS:
+
+```text
+GET /erp/products/search?query=electrificador&limit=20
+GET /erp/products/TEC-EC1000-PLUS-W
+GET /erp/inventory/TEC-EC1000-PLUS-W
+```
+
+La autorización del ERP se carga exclusivamente desde `.env`. El catálogo se
+mantiene en caché compartida en Redis para evitar descargarlo en cada búsqueda.
+El inventario nunca se almacena en caché: cada consulta descarga un snapshot
+nuevo del ERP y suma las existencias del SKU en todas sus bodegas.
+
 Ejecuta las verificaciones del workspace:
 
 ```bash
