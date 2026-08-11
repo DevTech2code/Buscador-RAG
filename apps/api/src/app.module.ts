@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { environmentSchema } from './config/environment.schema';
 import { ErpModule } from './erp/erp.module';
+import { GuardrailsModule } from './guardrails/guardrails.module';
 import { HealthModule } from './health/health.module';
 import { RedisModule } from './redis/redis.module';
 
@@ -21,6 +22,7 @@ import { RedisModule } from './redis/redis.module';
     RedisModule,
     HealthModule,
     ErpModule,
+    GuardrailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

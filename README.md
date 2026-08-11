@@ -58,6 +58,9 @@ mantiene en caché compartida en Redis para evitar descargarlo en cada búsqueda
 El inventario nunca se almacena en caché: cada consulta descarga un snapshot
 nuevo del ERP y suma las existencias del SKU en todas sus bodegas.
 
+Las reglas obligatorias de catálogo, stock, alternativas, evidencia y formato
+están documentadas en [`docs/guardrails.md`](docs/guardrails.md).
+
 Ejecuta las verificaciones del workspace:
 
 ```bash
