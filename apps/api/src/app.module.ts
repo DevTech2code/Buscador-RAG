@@ -7,6 +7,8 @@ import { ErpModule } from './erp/erp.module';
 import { GuardrailsModule } from './guardrails/guardrails.module';
 import { HealthModule } from './health/health.module';
 import { RedisModule } from './redis/redis.module';
+import { ChatModule } from './chat/chat.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { RedisModule } from './redis/redis.module';
       },
     }),
     RedisModule,
+    ChatModule,
+    AiModule,
     HealthModule,
     ErpModule,
     GuardrailsModule,

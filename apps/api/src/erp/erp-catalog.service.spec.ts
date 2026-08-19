@@ -48,6 +48,78 @@ describe('ErpCatalogService', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(redis.setJson).toHaveBeenCalledTimes(1);
   });
+
+  it('ignores generic sales words and matches relevant catalog terms', async () => {
+    const config = createConfigService();
+    const redis = {
+      getJson: jest.fn().mockResolvedValue(null),
+      acquireLock: jest.fn().mockResolvedValue('lock-token'),
+      waitForJson: jest.fn(),
+      setJson: jest.fn().mockResolvedValue(undefined),
+      releaseLock: jest.fn().mockResolvedValue(undefined),
+    };
+    global.fetch = jest.fn().mockResolvedValue(
+      new Response(JSON.stringify([createRawProduct()]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    const service = new ErpCatalogService(
+      config,
+      redis as unknown as RedisService,
+      new ErpHttpClient(
+        config,
+        new ErpCircuitBreaker(config),
+        new ErpConcurrencyLimiter(config),
+      ),
+    );
+
+    const result = await service.search('productos marca TECLAM', 5);
+
+    expect(result.matches).toHaveLength(1);
+    expect(result.matches[0]?.brandName).toBe('TECLAM');
+  });
+
+  it('prioritizes a camera whose name matches over ancillary equipment', async () => {
+    const config = createConfigService();
+    const redis = {
+      getJson: jest.fn().mockResolvedValue(null),
+      acquireLock: jest.fn().mockResolvedValue('lock-token'),
+      waitForJson: jest.fn(),
+      setJson: jest.fn().mockResolvedValue(undefined),
+      releaseLock: jest.fn().mockResolvedValue(undefined),
+    };
+    global.fetch = jest.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          createRawProduct({
+            codigoProducto: 'DVR-1',
+            nombreProducto: 'DVR 8 CANALES COMPATIBLE CON CAMARAS',
+            nombreLineaProducto: 'EQUIPOS PARA EXTERIORES',
+          }),
+          createRawProduct({
+            codigoProducto: 'CAM-1',
+            nombreProducto: 'CAMARA PARA EXTERIORES',
+            nombreLineaProducto: 'CAMARAS',
+          }),
+        ]),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    );
+    const service = new ErpCatalogService(
+      config,
+      redis as unknown as RedisService,
+      new ErpHttpClient(
+        config,
+        new ErpCircuitBreaker(config),
+        new ErpConcurrencyLimiter(config),
+      ),
+    );
+
+    const result = await service.search('camaras para exteriores', 5);
+
+    expect(result.matches[0]?.code).toBe('CAM-1');
+  });
 });
 
 function createConfigService(): ConfigService {
@@ -61,13 +133,16 @@ function createConfigService(): ConfigService {
     ERP_MAX_CONCURRENCY: 1,
     ERP_MAX_QUEUE_SIZE: 10,
     ERP_CACHE_TTL_SECONDS: 300,
+    ERP_CATALOG_WARM_INTERVAL_SECONDS: 240,
     ERP_LOCAL_CACHE_TTL_SECONDS: 30,
     ERP_CIRCUIT_FAILURE_THRESHOLD: 3,
     ERP_CIRCUIT_RESET_MS: 30_000,
   });
 }
 
-function createRawProduct(): Record<string, unknown> {
+function createRawProduct(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
     nroRegistro: 1,
     codigoProducto: 'TEC-EC1000-PLUS-W',
@@ -90,5 +165,6 @@ function createRawProduct(): Record<string, unknown> {
     origenProducto: 'BRASIL',
     indBloqueadoProducto: null,
     ultimaFechacosto: '2025-07-28',
+    ...overrides,
   };
 }

@@ -54,6 +54,13 @@ export class RedisService implements OnModuleDestroy {
     }
   }
 
+  async getJsonOrThrow<T>(key: string): Promise<T | null> {
+    await this.ensureConnected();
+    const value = await this.client.get(key);
+
+    return value === null ? null : (JSON.parse(value) as T);
+  }
+
   async setJson(
     key: string,
     value: unknown,
@@ -65,6 +72,15 @@ export class RedisService implements OnModuleDestroy {
     } catch (error) {
       this.logOperationFailure('write', error);
     }
+  }
+
+  async setJsonOrThrow(
+    key: string,
+    value: unknown,
+    ttlSeconds: number,
+  ): Promise<void> {
+    await this.ensureConnected();
+    await this.client.set(key, JSON.stringify(value), { EX: ttlSeconds });
   }
 
   async acquireLock(

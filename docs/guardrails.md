@@ -3,6 +3,12 @@
 Estas políticas se aplican en NestJS antes de permitir que un proveedor LLM
 redacte una respuesta. El modelo no decide qué productos están autorizados.
 
+### Alcance informativo
+
+- El sistema solo informa catálogo, especificaciones, datasheets y disponibilidad.
+- No vende, reserva, cotiza, factura ni procesa pedidos.
+- Una verificación en vivo solo actualiza información; no compromete inventario.
+
 ## Reglas reforzadas por backend
 
 ### Catálogo
@@ -14,9 +20,11 @@ redacte una respuesta. El modelo no decide qué productos están autorizados.
 
 ### Inventario
 
-- Toda decisión comercial requiere una respuesta de stock en vivo.
+- Las consultas informativas usan el snapshot compartido más reciente.
 - El SKU de la respuesta de stock debe coincidir con el producto evaluado.
-- El inventario no se almacena en Redis ni en memoria entre solicitudes.
+- El snapshot se sincroniza continuamente desde Insoft y registra su antigüedad.
+- Un snapshot vencido no se presenta como disponibilidad actual confirmada.
+- El asesor puede solicitar una verificación informativa directa en Insoft.
 - Una alternativa requiere `totalQuantity > 0`.
 - Si no existe respuesta de stock, la política falla de forma cerrada.
 
@@ -41,7 +49,7 @@ El orquestador conversacional deberá ejecutar estas políticas en este orden:
 1. Clasificar el alcance de la consulta.
 2. Resolver requisitos y productos mencionados.
 3. Recuperar catálogo y evidencia documental.
-4. Consultar inventario en vivo.
+4. Consultar el snapshot vigente o realizar una verificación informativa en vivo.
 5. Generar candidatos técnicos.
 6. Solicitar aprobación al `GuardrailsModule`.
 7. Entregar al LLM únicamente productos y evidencia aprobados.

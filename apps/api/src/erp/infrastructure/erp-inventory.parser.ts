@@ -1,4 +1,5 @@
 import { ErpStock, WarehouseStock } from '../domain/erp-stock';
+import { ErpInventorySnapshot } from '../domain/erp-inventory-snapshot';
 
 interface InventoryAccumulator {
   snapshotAt: string;
@@ -73,6 +74,29 @@ export function parseInventoryForProducts(
       warehouses,
     };
   });
+}
+
+export function parseInventorySnapshot(payload: unknown): ErpInventorySnapshot {
+  if (!Array.isArray(payload)) {
+    throw new TypeError('ERP inventory response must be an array');
+  }
+
+  const productCodes = new Set<string>();
+  for (const [index, value] of payload.entries()) {
+    if (!isRecord(value)) {
+      throw new TypeError(`ERP inventory row ${index} must be an object`);
+    }
+    productCodes.add(requiredString(value, 'codigoProducto', index));
+  }
+
+  const stocks = parseInventoryForProducts(payload, [...productCodes]);
+  return {
+    version: 1,
+    fetchedAt: new Date().toISOString(),
+    stocks: Object.fromEntries(
+      stocks.map((stock) => [normalizeCode(stock.productCode), stock]),
+    ),
+  };
 }
 
 function requiredString(

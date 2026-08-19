@@ -36,12 +36,16 @@ export class ErpHttpClient {
   }
 
   async getJson(endpoint: string): Promise<unknown> {
+    return this.circuitBreaker.execute(() => this.getJsonWithRetries(endpoint));
+  }
+
+  private async getJsonWithRetries(endpoint: string): Promise<unknown> {
     let lastError: unknown;
 
     for (let attempt = 0; attempt <= this.maximumRetries; attempt += 1) {
       try {
-        return await this.circuitBreaker.execute(() =>
-          this.concurrencyLimiter.run(() => this.requestJson(endpoint)),
+        return await this.concurrencyLimiter.run(() =>
+          this.requestJson(endpoint),
         );
       } catch (error) {
         lastError = error;
